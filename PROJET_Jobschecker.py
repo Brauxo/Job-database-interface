@@ -329,6 +329,7 @@ class Interface:
 
     #stop the program
     def stop(self):
+        self.win.quit()
         self.win.destroy()
 
 
