@@ -3,6 +3,20 @@ This repository contains a Python application built with Tkinter for managing an
 
 [Access here !](PROJET_Jobschecker.py)
 
+
+## It needs :
+Python 3.x
+Tkinter
+Random library
+Regular expressions (re) library
+CSV format
+
+Important : install sv_ttk 
+```
+pip install sv-ttk
+```
+
+
 ## Features
 Database Generation : The application generates a database of job listings with randomly assigned names, descriptions, locations, sectors, and salaries.
 
@@ -22,6 +36,8 @@ New file, open file, save file : you can save your progress using the menu toolb
 
 generate random jobs : In the menu you can find a generator that will create 30 randoms jobs from a preset list
 
+Show graph : show a graph of jobs salaries by sectors
+
 ## Instructions
 To use the application:
 
@@ -33,10 +49,3 @@ After that you can :
 	>Enter the minimum and maximum salary values to apply a salary filter.
 	>Activate the option to apply both the search and salary filters at once.
 	>At the end you can save your progress by using the menu.
-
-## It needs :
-Python 3.x
-Tkinter
-Random library
-Regular expressions (re) library
-CSV format

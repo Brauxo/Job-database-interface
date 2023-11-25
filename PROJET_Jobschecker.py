@@ -5,6 +5,13 @@ from tkinter import filedialog
 import csv
 import re
 import random
+from pathlib import Path
+import os
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg , NavigationToolbar2Tk
+
+#neet to be installed pip install sv-ttk
+import sv_ttk
 
 #The first part is used to generate a databse of jobs :
 
@@ -14,33 +21,22 @@ class JobDatabase:
         self.sectors = ["Technology", "Healthcare", "Finance", "Education", "Art", "Military", "Marketing", "Industrial"]
 
         # locations possibles
-        self.locations = ["Prague", "Brno", "Ostrava", "Plzen" ,"Liberec", "Olomouc"]
+        self.locations = ["Prague", "Brno", "Ostrava", "Plzen" ,"Liberec", "Olomouc","Abroad"]
 
         #jobs name possible
-        self.name = ["Engineer","Developer","CEO","Technician","Worker","Salesman" ,"searcher","security",]
+        self.name = ["Engineer","Developer","CEO","Technician","Worker","Salesman" ,"Searcher","Security","Comedian","Tester"]
 
-        #descriptions possible (I asked chat gpt to create a list of descriptions of jobs to help me)
+        #descriptions possible 
         self.descriptions = [
-            "Responsible for developing and maintaining software applications.",
-            "Analyzing and interpreting data to provide insights and recommendations.",
-            "Managing financial transactions, records, and reports.",
-            "Educating and instructing students in a particular field or subject.",
-            "Providing customer service and ensuring guest satisfaction.",
-            "Creating strategies to promote products or services.",
-            "Designing, developing, and testing products or structures.",
-            "Creating visual concepts to communicate ideas.",
-            "Selling products or services to potential customers.",
-            "Performing medical examinations and providing healthcare services.",
-            "Ensuring the proper functioning of network and IT systems.",
-            "Managing projects and coordinating teams to achieve objectives.",
-            "Creating content for marketing and promotional purposes.",
-            "Conducting research and experiments in a scientific field.",
-            "Providing technical support and assistance to users.",
-            "Assisting in administrative tasks and office management.",
-            "Developing and implementing strategies for business growth.",
-            "Operating machinery and ensuring production efficiency.",
-            "Performing quality checks and ensuring product standards.",
-            "Handling legal matters and providing legal advice."
+            "Need to be someone that can be trusted.",
+            "Able to understand hard topics.",
+            "Working with a lot of people.",
+            "Require Patience and skill.",
+            "Never be late at work.",
+            "Create new strategies for the service.",
+            "Designing skills are required.",
+            "Create advanced visual concepts.",
+            "Understanding of the clients.",
         ]
         
         # create 30 jobs 
@@ -109,19 +105,23 @@ class Interface:
         radVar = tk.IntVar()
         ttk.Checkbutton(self.win, text="Search and salary filters", variable=radVar, command=self.bothfilter).grid(column=5, row=3)
 
+        
+        ttk.Button(self.win, text="Show Graph", command=self.show_graph).grid(row=6, column=0, columnspan=3)
+
         # Display all jobs initially
         self.display_jobs(self.job_db.database_jobs)
 
         # Menu of the app
         menubar1 = tk.Menu(self.win)
         menu1 = tk.Menu(menubar1, tearoff=0)
+        menu1.add_separator()
         menu1.add_command(label="New", command=self.new_file)
         menu1.add_command(label="Open", command=self.open_file)
         menu1.add_command(label="Save as", command=self.save_file)
-        menu1.add_command(label="Generate jobs", command=self.generator)
         menu1.add_separator()
-        menu1.add_command(label="Exit the app", command=self.win.quit)
-        menubar1.add_cascade(label="File Menu !", menu=menu1)
+        menubar1.add_cascade(label="New/Open/Save File", menu=menu1)
+        menubar1.add_command(label="Generate jobs", command=self.generator)
+        menubar1.add_command(label="Exit the app", command=self.win.quit)
 
         # display the menu
         self.win.config(menu=menubar1)
@@ -288,24 +288,70 @@ class Interface:
         self.clear()
         self.display_jobs(self.job_db.database_jobs)
 
+
+    # show the salary distribution by sector with matplot !
+    def show_graph(self):
+        # Gather data for the chart
+        sector_salaries = {}
+
+        for job in self.job_db.database_jobs :
+            sector = job['Sector']
+            salary = job['Salary CZK']
+
+            if sector not in sector_salaries :
+                sector_salaries[sector] = []
+
+            sector_salaries[sector].append(salary)
+
+        # create the chart
+        fig, ax = plt.subplots(figsize=(8, 6))
+
+        for sector, salaries in sector_salaries.items():
+            ax.bar(sector, sum(salaries) / len(salaries), label=sector)
+
+        ax.set_xlabel('Sector')
+        ax.set_ylabel('Average Salary CZK')
+        ax.set_title('Average Salary Distribution by Sector')
+        ax.legend()
+
+        # here we display in a new window
+        graphwin = tk.Toplevel(self.win)
+        graphstats = FigureCanvasTkAgg(fig, master=graphwin)
+        graphstats.draw()
+        graphstats.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        toolbar = NavigationToolbar2Tk(graphstats, graphwin)
+        toolbar.update()
+        graphstats.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
     # run the interface 
     def run(self) :
         self.win.mainloop()
 
+    #stop the program
+    def stop(self):
+        self.win.destroy()
+
 
 
 # initialisize the app
-class Main:
-    def __init__(self) :
-        self.win = tk.Tk()
-        self.job_db = JobDatabase()
-        self.job_interface = Interface(self.win, self.job_db)
+if __name__ == "__main__":
 
-    def run(self):
-        self.job_interface.run()
+    #create a window
+    win = tk.Tk()
 
+    #icone working if you set up a path
+    #win.iconbitmap(os.path.abspath("icone.ico"))
 
 
-# run the app :
-app = Main()
-app.run()
+    job_db = JobDatabase()
+    job_interface = Interface(win, job_db)
+
+    #Theme used from sv_ttk
+    sv_ttk.set_theme("dark")
+
+    #protocol to stop the program 
+    win.protocol("WM_DELETE_WINDOW", job_interface.stop)
+
+    job_interface.run()
+
+
